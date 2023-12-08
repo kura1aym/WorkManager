@@ -33,25 +33,22 @@ class BlurWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             delay(DELAY_TIME_MILLIS)
 
             return@withContext try {
-                require(!resourceUri.isNullOrBlank()) {
-                    val errorMessage =
-                        applicationContext.resources.getString(R.string.invalid_input_uri)
-                    Log.e(TAG, errorMessage)
-                    errorMessage
-                }
-                val resolver = applicationContext.contentResolver
-
-                val picture = BitmapFactory.decodeStream(
-                    resolver.openInputStream(Uri.parse(resourceUri))
+                delay(DELAY_TIME_MILLIS)
+                val picture = BitmapFactory.decodeResource(
+                    applicationContext.resources,
+                    R.drawable.android_cupcake
                 )
 
-                val output = blurBitmap(picture, blurLevel)
+                val output = blurBitmap(picture, 1)
 
                 val outputUri = writeBitmapToFile(applicationContext, output)
 
-                val outputData = workDataOf(KEY_IMAGE_URI to outputUri.toString())
+                makeStatusNotification(
+                    "Output is $outputUri",
+                    applicationContext
+                )
 
-                Result.success(outputData)
+                Result.success()
             } catch (throwable: Throwable) {
                 Log.e(
                     TAG,
